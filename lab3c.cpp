@@ -1,6 +1,9 @@
 ﻿/******************************************************************************
 1) Ввести массив
 2) Добавить элемент в конец
+/******************************************************************************
+1) Ввести массив
+2) Добавить элемент в конец
 3) Удалить элемент по позиции
 4) Удалить элементы по значению
 a-массив
@@ -11,42 +14,40 @@ x-Число, позиция, значение
 #include <cstdlib>
 #include <stdlib.h>
 using namespace std;
+#define ERROR_UNCORRECT "ERROR: You enter uncorrect value!\n"
+#define ERROR_CHANGE    "ERROR: Changing array!\n"
+#define ERROR_ALLOC     "ERROR: Memory allocation field!\n"
+#define ERROR_LEN       "ERROR: Length equals 0!\n"
+#define ERROR_REALLOC   "ERROR: Reallocation field!\n"
+#define ERROR_OUT       "ERROR: Out of range\n"
 
-void attention(char code_att) {
-    switch (code_att) {
-    case '0': {
-        cout << "You enter uncorrect value!\n";
-        break;
-    }
-    case '1': {
-        cout << "Error changing array!\n";
-    }
-    case '2': {
-        cout << "Memory allocation field!\n";
-    }
-    }
-}
 
 int* declare(int &n) {
     int*a = (int*)malloc(sizeof(int)*n);
     return a;
 }
 
-int* change_size(int* a, int& n) {
+void change_size(int* a, int& n) {
     int* t = (int*)realloc(a, sizeof(int)*(n));
     if (t == NULL) {
-        cout << "error\n";
-        exit(1);
+        if (n == 0) {
+            cout <<ERROR_LEN;
+        }
+        else { 
+            cout << ERROR_REALLOC;
+        }
+        free(t);
+        a = NULL;
+        exit(0);
     }
     else {
-        a = (int*)t;
-        return a;
+        a = t;
     }
 }
 
 int* to_end(int*a, int& n, int& x) {
     n++;
-    a = change_size(a, n);
+    change_size(a, n);
     a[n - 1] = x;
     return a;
 }
@@ -56,7 +57,7 @@ int* del_ind(int* a, int& n, int& x) {
     for (int i = x - 1; i < n; i++) {
         a[i] = a[i + 1];
     }
-    a = change_size(a, n);
+    change_size(a, n);
     return a;
 }
 
@@ -68,7 +69,7 @@ int*del_weight(int* a, int& n, int& x) {
             n--;
         }
     }
-    a = change_size(a, n);
+    change_size(a, n);
     return a;
 }
 
@@ -94,7 +95,7 @@ int*task2(int* a, int& n, int x) {
         del_ind(a, n, x);
         print(a, n);
     }
-    else cout << "Error: out of range!\n";
+    else cout << ERROR_OUT;
     return a;
 }
 
@@ -125,20 +126,20 @@ void menu() {
         int* a;
         a=declare(n);
         if (a == NULL) {
-            attention('0');
-            exit(1);
+            cout << ERROR_UNCORRECT;
+            exit(0);
         }
         cout << "input digits:\n";
         a = enter_value(a, n);
-        bool f=0;
-        while(f==0){
+        bool f=false;
+        while(f==false){
             cout << "-Select task:\n--(1) ADD  (1)\n--(2)DelInd(2)\n--(3)DelVal(3)\n--(e) exit (e)\n--(c)clear (c)\n";
             cin >> choice;
             switch (choice) {
             case'1': { x = input_X(); a = task1(a, n, x); break; }
             case'2': { x = input_X(); a = task2(a, n, x); break; }
             case'3': { x = input_X(); a = task3(a, n, x); break; }
-            case'e': {f = 1; break; }
+            case'e': {f = true; break; }
             case'c': {
                 system("cls");
                 cout << "Length: " << n << endl;
@@ -152,7 +153,7 @@ void menu() {
         free(a);
         a = NULL;
     }
-    else attention('0');
+    else cout<<ERROR_UNCORRECT;
 }
 int main()
 {
