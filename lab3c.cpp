@@ -1,6 +1,3 @@
-﻿/******************************************************************************
-1) Ввести массив
-2) Добавить элемент в конец
 /******************************************************************************
 1) Ввести массив
 2) Добавить элемент в конец
@@ -17,26 +14,24 @@ using namespace std;
 #define ERROR_UNCORRECT "ERROR: You enter uncorrect value!\n"
 #define ERROR_CHANGE    "ERROR: Changing array!\n"
 #define ERROR_ALLOC     "ERROR: Memory allocation field!\n"
-#define ERROR_LEN       "ERROR: Length equals 0!\n"
 #define ERROR_REALLOC   "ERROR: Reallocation field!\n"
 #define ERROR_OUT       "ERROR: Out of range\n"
 
 
 int* declare(int &n) {
     int*a = (int*)malloc(sizeof(int)*n);
+    if (a == NULL) {
+        cout << ERROR_ALLOC;
+        exit(0);
+    }
     return a;
 }
 
-void change_size(int* a, int& n) {
+void change_size(int*&a, int n) {
     int* t = (int*)realloc(a, sizeof(int)*(n));
-    if (t == NULL) {
-        if (n == 0) {
-            cout <<ERROR_LEN;
-        }
-        else { 
-            cout << ERROR_REALLOC;
-        }
-        free(t);
+    if (t == NULL && n!=0) {
+        cout << ERROR_REALLOC;
+        free(a);
         a = NULL;
         exit(0);
     }
@@ -45,10 +40,12 @@ void change_size(int* a, int& n) {
     }
 }
 
-int* to_end(int*a, int& n, int& x) {
+int* to_end(int*&a, int& n, int& x) {
     n++;
     change_size(a, n);
+    //cout << a[0] << a[1] << a[2]<<endl;
     a[n - 1] = x;
+    //cout << a[0] << a[1] << a[2] << endl;
     return a;
 }
 
@@ -61,11 +58,10 @@ int* del_ind(int* a, int& n, int& x) {
     return a;
 }
 
-int*del_weight(int* a, int& n, int& x) {
+int*del_weight(int*&a, int& n, int& x) {
     for (int i = 0; i < n; i++) {
         if (a[i] == x) {
-            int step = i;
-            for (int j = i; j < n - 1; j++) { a[step] = a[j + 1]; step++; } //сдвиг влево
+            for (int j = i; j < n - 1; j++) { a[j] = a[j + 1]; } //сдвиг влево
             n--;
         }
     }
@@ -73,7 +69,7 @@ int*del_weight(int* a, int& n, int& x) {
     return a;
 }
 
-void print(int* a, int& n) {
+void print(int *&a, int& n) {
     for (int i = 0; i < n; i++) {
         cout << a[i] << " ";
     }
@@ -89,7 +85,7 @@ int*task1(int*& a, int& n, int x) {
     return a;
 }
 
-int*task2(int* a, int& n, int x) {
+int*task2(int*&a, int& n, int x) {
     if (x <= n) {
         cout << "Task(2): ";
         del_ind(a, n, x);
@@ -99,17 +95,18 @@ int*task2(int* a, int& n, int x) {
     return a;
 }
 
-int*task3(int* a, int& n, int x) {
+int*task3(int*&a, int& n, int x) {
     cout << "Task(3): ";
     del_weight(a, n, x);
     print(a, n);
     return a;
 }
 
-int* enter_value(int* a, int& n) {
+int* enter_value(int*&a, int& n) {
     for (int i = 0; i < n; i++) { cin >> a[i]; }
     return a;
 }
+
 int input_X() {
     int x;
     cout << "input (digits,index): ";
@@ -125,10 +122,6 @@ void menu() {
     if (n >= 1) {
         int* a;
         a=declare(n);
-        if (a == NULL) {
-            cout << ERROR_UNCORRECT;
-            exit(0);
-        }
         cout << "input digits:\n";
         a = enter_value(a, n);
         bool f=false;
