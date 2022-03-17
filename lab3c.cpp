@@ -17,9 +17,9 @@ using namespace std;
 #define ERROR_REALLOC   "ERROR: Reallocation field!\n"
 #define ERROR_OUT       "ERROR: Out of range\n"
 
-
+typedef int* arr_t;
 int* declare(int &n) {
-    int*a = (int*)malloc(sizeof(int)*n);
+    arr_t a = (int*)malloc(sizeof(int)*n);
     if (a == NULL) {
         cout << ERROR_ALLOC;
         exit(0);
@@ -27,8 +27,8 @@ int* declare(int &n) {
     return a;
 }
 
-void change_size(int*&a, int n) {
-    int* t = (int*)realloc(a, sizeof(int)*(n));
+void change_size(arr_t&a, int n) {
+    arr_t t = (int*)realloc(a, sizeof(int)*(n));
     if (t == NULL && n!=0) {
         cout << ERROR_REALLOC;
         free(a);
@@ -40,7 +40,7 @@ void change_size(int*&a, int n) {
     }
 }
 
-int* to_end(int*&a, int& n, int& x) {
+int* to_end(arr_t&a, int& n, int& x) {
     n++;
     change_size(a, n);
     //cout << a[0] << a[1] << a[2]<<endl;
@@ -49,7 +49,7 @@ int* to_end(int*&a, int& n, int& x) {
     return a;
 }
 
-int* del_ind(int* a, int& n, int& x) {
+int* del_ind(arr_t&a, int& n, int& x) {
     n--;
     for (int i = x - 1; i < n; i++) {
         a[i] = a[i + 1];
@@ -58,7 +58,7 @@ int* del_ind(int* a, int& n, int& x) {
     return a;
 }
 
-int*del_weight(int*&a, int& n, int& x) {
+int*del_weight(arr_t&a, int& n, int& x) {
     for (int i = 0; i < n; i++) {
         if (a[i] == x) {
             for (int j = i; j < n - 1; j++) { a[j] = a[j + 1]; } //сдвиг влево
@@ -69,7 +69,7 @@ int*del_weight(int*&a, int& n, int& x) {
     return a;
 }
 
-void print(int *&a, int& n) {
+void print(arr_t&a, int& n) {
     for (int i = 0; i < n; i++) {
         cout << a[i] << " ";
     }
@@ -78,14 +78,14 @@ void print(int *&a, int& n) {
 
 
 
-int*task1(int*& a, int& n, int x) {
+int*task1(arr_t&a, int& n, int x) {
     cout << "Task(1): ";
     a = to_end(a, n, x);
     print(a, n);
     return a;
 }
 
-int*task2(int*&a, int& n, int x) {
+int*task2(arr_t&a, int& n, int x) {
     if (x <= n) {
         cout << "Task(2): ";
         del_ind(a, n, x);
@@ -95,14 +95,14 @@ int*task2(int*&a, int& n, int x) {
     return a;
 }
 
-int*task3(int*&a, int& n, int x) {
+int*task3(arr_t&a, int& n, int x) {
     cout << "Task(3): ";
     del_weight(a, n, x);
     print(a, n);
     return a;
 }
 
-int* enter_value(int*&a, int& n) {
+int* enter_value(arr_t&a, int& n) {
     for (int i = 0; i < n; i++) { cin >> a[i]; }
     return a;
 }
@@ -120,7 +120,7 @@ void menu() {
     cin >> n;
     char choice;
     if (n >= 1) {
-        int* a;
+        arr_t a;
         a=declare(n);
         cout << "input digits:\n";
         a = enter_value(a, n);
