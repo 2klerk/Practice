@@ -77,12 +77,8 @@ void st_decrease(stack_t& st) {
 
 
 void create(stack_t& st) {               //-
-	st.ptr = (int*)malloc(sizeof(int) * st.size);
-	if (st.ptr == NULL) {
-		strncat(Error_message, MALLOC_FIELD, '\n');
-		not_ok();
-		//exit(0);
-	}
+	st.ptr = NULL;
+	st.size=0;
 }
 
 void push(stack_t& st, int new_el) {
