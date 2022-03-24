@@ -8,95 +8,125 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <cstdlib>
+#include<string>
 using namespace std;
-#define STACK_MAX_SIZE 20
 #define ERROR_NOT_FOUND "ERROR: Command not found!\n"
 #define MALLOC_FIELD    "ERROR: Malloc field!\n"
 #define REALLOC_FIELD   "ERROR: Realloc field!\n"
 #define NO_SPACE        "ERROR: No more space!\n"
+#define ST_EMPTY        "Stack is empty\n\n";
+
+
+//используется кривое слово успех
+bool success =true;
+void not_ok() {
+	success = false;
+}
+void again_true() {
+	success = true;
+}
+
 typedef int* arr_t;
 typedef struct arr {
 	arr_t ptr;
 	int size=0;
 } stack_t;
 
-void clear(stack_t& st) {
-	free(st.ptr);
-	st.size == 0;
-	cout<< "#########\n"
-	    << "#Cleaned#\n"
-		<< "#########\n\n";
+bool isempty(stack_t& st) {
+	if (st.size == 0)return false;
+	else return true;
 }
+
+void clear(stack_t& st) {
+	if(st.size!=0)free(st.ptr);
+	st.ptr = NULL;
+	st.size = 0;
+}
+
+
 void clear_console() {
 	system("cls");
 }
+
+
 void st_increase(stack_t& st) {
 	st.size++;
-	if (st.size == 0)clear(st);
-	else {
-		arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
-		if (t == NULL) {
-			cout << REALLOC_FIELD;
-			clear(st);
-			exit(0);          //
-		}
-		else st.ptr = t;
+	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
+	if (t == NULL) {
+		//cout << REALLOC_FIELD;
+		clear(st);
+		//exit(0);          
 	}
+	else st.ptr = t;
 }
 
+void st_decrease(stack_t& st) {
+	st.size--;
+	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
+	if (t == NULL) {
+		//cout << REALLOC_FIELD;
+		clear(st);
+		//exit(0);
+	}
+	else st.ptr = t;
+}
 
 
 void create(stack_t&st) {               //-
 	st.ptr = (int*)malloc(sizeof(int) * st.size);
 	if (st.ptr == NULL) {
-		cout << MALLOC_FIELD;
-		exit(0);
+		//cout << MALLOC_FIELD;
+		not_ok();
+		//exit(0);
 	}
 }
 
 void push(stack_t& st, int new_el) {
-
 	st_increase(st);
 	st.ptr[st.size - 1] = new_el;
-	cout <<"#########\n"
-		<< "#PUSHED#\n"
-		<< "#########\n\n";
 }
 
-void swap_2last(stack_t &st) {
-	if (st.size == 1)cout << "Stack has 1 element!\n\n";
+int peak(stack_t& st) {
+	if (isempty(st) != 0) {
+		return st.ptr[st.size - 1];
+	}
 	else {
-		int temp = st.ptr[st.size - 2];
-		st.ptr[st.size - 2] = st.ptr[st.size - 1];
-		st.ptr[st.size - 1] = temp;
-		cout << "n-1 = " << st.ptr[st.size - 2]<<endl
-			<< "n   = " << st.ptr[st.size - 1]
-			<< endl << endl;
+		not_ok();
+		return -1;
 	}
 }
-//void pop(stack_t&st) {
-//	st.size--;
-//	if (st.size == 0)clear(st);
-//	else {
-//		arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
-//		if (t == NULL) {
-//			cout << REALLOC_FIELD;
-//			clear(st);
-//			exit(0);          //
-//		}
-//		else st.ptr = t;
-//	}
-//}
-void peak(stack_t&st) {
-	if (st.size != 0) {
-		cout << "#########\n"
-			<< "#  PEAK #\n"
-			<< "#########\n";
-		//return st.ptr[st.size - 1];
-		cout<<"Peak = " << st.ptr[st.size - 1]<<endl<<endl;
+
+int pop(stack_t& st) {
+	int buff;
+	if (st.size == 0) { 
+		not_ok();
+		return -2;
 	}
-	else cout << "Stack is empty\n\n";
+	else {
+		buff = st.ptr[st.size - 1];
+		st_decrease(st);
+	}
+	return buff;
 }
+
+//неправильная работа при 1 элементе
+void task4(stack_t& st) {
+	if (isempty == 0)cout << "Stack is empty!\n\n";
+	else {
+		int t1 = pop(st);
+		if (success == true) {
+			int t2 = pop(st);
+			push(st, t1);
+			push(st, t2);
+		}
+		else {
+			again_true();
+		}
+	}
+}
+
+
+
 
 void task_info() {
 	cout << "(1)Clear stack   (1)\n"        //
@@ -109,39 +139,47 @@ void task_info() {
 		<< "(c)Clear Console (c)\n"		//!
 		<< "(e)EXIT          (e)\n";
 }
+//
+string space(string s) {
+		return string(17-s.length(), ' ');
+}
 void print_stack(stack_t&st) {
-	cout << "###################\n";
+	cout << "+-----------------+\n";
 	for (int i = 0; i < st.size; i++) {
-		cout << st.ptr[i] << endl;
+		cout <<'|' << st.ptr[i] <<space(to_string(st.ptr[i]))<<'|'<< endl;
 	}
-	cout << "###################\n";
-}
-void pop(stack_t& st) {
-	st.size--;
-	if (st.size == 0)clear(st);
-	else {
-		arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
-		if (t == NULL) {
-			cout << REALLOC_FIELD;
-			clear(st);
-			exit(0);          //
-		}
-		else st.ptr = t;
-	}
-}
-void delete_first(stack_t&st){//Ошибка ловит мусор вне функции (исправлено)
-	stack_t temp;
-	temp.size = st.size - 1;
-	create(temp);
-	for (int i = 1; i < st.size; i++) {
-		temp.ptr[i-1] = st.ptr[i];
-	}
-	pop(st);
-	free(st.ptr);
-	st = temp;
-	//print_stack(st);  
+	cout << "+-----------------+\n";
 }
 
+
+void task5(stack_t&st){
+	stack_t temp;
+	create(temp);
+	while (isempty(st)) {
+		push(temp,pop(st));
+	}
+	pop(temp);
+	while (isempty(temp)) {
+		push(st, pop(temp));
+	}
+	again_true();
+}
+//обработать когда элемент один
+void task6(stack_t& st) {
+	stack_t temp;
+	create(temp);
+	int t1 = pop(st);
+	//if (!isempty(st)){
+	while (isempty(st)) {
+		push(temp, pop(st));
+	}
+	int t2=pop(temp);
+	push(temp, t1);
+	while (isempty(temp)) {
+		push(st, pop(temp));
+	}
+	push(st, t2);
+}
 void menu() {
 	stack_t st;
 	char choice;
@@ -151,21 +189,61 @@ void menu() {
 		task_info();
 		cin >> choice;
 		switch (choice) {
-		case'1':clear(st); break;
+		case'1': {
+			print_stack(st);
+			clear(st);
+			cout<< "#########\n"
+		        << "#Cleaned#\n"
+		        << "#########\n\n";
+			break; 
+			}
 			case'2': {
 				int x;
 				cout << "Enter value: ";
 				cin >> x;
 				push(st, x);
+				cout << "#########\n"
+		             << "#PUSHED#\n"
+		             << "#########\n\n";
 				break; 
 			}
-			case'3':peak(st); break;
-			case'4':swap_2last(st); break;
+			case'3': {
+				if (success == true) {
+					cout << "Peek = " << peak(st)<<endl;
+					cout <<"#########\n"
+						<< "#  PEAK #\n"
+						<< "#########\n\n";
+				}
+				else {
+					cout << ST_EMPTY;
+				}
+				again_true();
+				break; 
+			}
+			case'4': {
+				task4(st);
+				print_stack(st);
+				cout <<"#########\n"
+					<< "#CHANGED#\n"
+					<< "#########\n\n";
+				break; 
+			}
 			case'5': {
-				delete_first(st);
+				task5(st);
+				print_stack(st);
+				cout <<"#########\n"
+					<< "#DELETED#\n"
+					<< "#########\n\n";
 				break; 
 			}
-			case'6':break;
+			case'6': {
+				task6(st);
+				print_stack(st);
+				cout <<"#########\n"
+					 <<"#SWAPED #\n"
+					<< "#########\n\n";
+				break; 
+			}
 			case'p':print_stack(st); break;
 			case'c':clear_console(); break;
 			case'e':f = true; break;
@@ -178,3 +256,20 @@ int main()
 {
 	menu();
 }
+
+
+//pop
+//pop
+//push
+//push
+
+
+//push --перегон
+//pop
+//push --обратно
+
+//pop ->t1
+//task5
+//pop ->t2
+//push t1
+//переворачиватеся 
