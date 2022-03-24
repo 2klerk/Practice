@@ -10,32 +10,36 @@
 #include <cstring>
 #include <cstdlib>
 #include<string>
+//поставил char вместо define из-за ошибки
 using namespace std;
-#define ERROR_NOT_FOUND "ERROR: Command not found!\n"
-#define MALLOC_FIELD    "ERROR: Malloc field!\n"
-#define REALLOC_FIELD   "ERROR: Realloc field!\n"
+#define NOT_FOUND       "Command not found!\n"
 #define NO_SPACE        "ERROR: No more space!\n"
 #define ST_EMPTY        "Stack is empty\n\n";
 
 
 //используется кривое слово успех
 bool success = true;
-char Error_message[30];
+bool mem = true;
+char Error_message[30]="";
 void not_ok() {
 	success = false;
 }
+void mem_error() {
+	mem = false;
+}
 void again_true() {
 	success = true;
-	Error_message[30];
 }
-
+void mem_true() {
+	mem = true;
+}
 typedef int* arr_t;
 typedef struct arr {
 	arr_t ptr;
 	int size = 0;
 } stack_t;
 
-bool isempty(stack_t& st) {
+bool isnoempty(stack_t& st) {
 	if (st.size == 0)return false;
 	else return true;
 }
@@ -56,7 +60,9 @@ void st_increase(stack_t& st) {
 	st.size++;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
 	if (t == NULL) {
-		strncat(Error_message, REALLOC_FIELD, '\n');
+		//strcat(Error_message, "ERROR: Realloc field!\n");
+		mem_error();
+		not_ok();
 		clear(st);
 		//exit(0);          
 	}
@@ -67,18 +73,24 @@ void st_decrease(stack_t& st) {
 	st.size--;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
 	if (t == NULL) {
-		strncat(Error_message, REALLOC_FIELD, '\n');
+		//strcat(Error_message, "ERROR: Realloc field!\n");
 		clear(st);
 		not_ok();
+		mem_error();
 		//exit(0);
 	}
 	else st.ptr = t;
 }
 
 
-void create(stack_t& st) {               //-
-	st.ptr = NULL;
-	st.size=0;
+void create(stack_t& st) {               
+	st.ptr = (int*)malloc(sizeof(int) * st.size);
+	if (st.ptr == NULL) {
+		//strcat(Error_message, "ERROR: Malloc field!\n");
+		not_ok();
+
+		//exit(0);
+	}
 }
 
 void push(stack_t& st, int new_el) {
@@ -87,7 +99,7 @@ void push(stack_t& st, int new_el) {
 }
 
 int peak(stack_t& st) {
-	if (isempty(st) != 0) {
+	if (isnoempty(st) != 0) {
 		return st.ptr[st.size - 1];
 	}
 	else {
@@ -100,7 +112,7 @@ int pop(stack_t& st) {
 	int buff;
 	if (st.size == 0) {
 		not_ok();
-		return -2;
+		return -222;      
 	}
 	else {
 		buff = st.ptr[st.size - 1];
@@ -111,19 +123,22 @@ int pop(stack_t& st) {
 
 //неправильная работа при 1 элементе
 void task4(stack_t& st) {
-	if (isempty == 0)cout << "Stack is empty!\n\n";
+	if (isnoempty(st)== 0)cout << "Stack is empty!\n\n";
 	else {
 		int t1 = pop(st);
-		if (success == true) {
+		if (isnoempty(st) == true) {
 			int t2 = pop(st);
 			push(st, t1);
 			push(st, t2);
-		}
-		else {
 			again_true();
 		}
-	}
+		else {
+			push(st, t1);  //возвращаем элемент в случае неудачи
+			not_ok();
+		}
+	}	
 }
+
 
 
 
@@ -144,22 +159,27 @@ string space(string s) {
 	return string(17 - s.length(), ' ');
 }
 void print_stack(stack_t& st) {
-	cout << "+-----------------+\n";
-	for (int i = 0; i < st.size; i++) {
-		cout << '|' << st.ptr[i] << space(to_string(st.ptr[i])) << '|' << endl;
+	if (isnoempty(st)) {
+		cout << "+-----------------+\n";
+		for (int i = 0; i < st.size; i++) {
+			cout << '|' << st.ptr[i] << space(to_string(st.ptr[i])) << '|' << endl;
+		}
+		cout << "+-----------------+\n";
 	}
-	cout << "+-----------------+\n";
+	else cout << "#######\n"
+		      << "#EMPTY#\n"
+			  << "#######\n";
 }
 
 
 void task5(stack_t& st) {
 	stack_t temp;
 	create(temp);
-	while (isempty(st)) {
+	while (isnoempty(st)) {
 		push(temp, pop(st));
 	}
 	pop(temp);
-	while (isempty(temp)) {
+	while (isnoempty(temp)) {
 		push(st, pop(temp));
 	}
 	again_true();
@@ -170,17 +190,29 @@ void task6(stack_t& st) {
 	create(temp);
 	if (success == true) {
 		int t1 = pop(st);
-		//if (!isempty(st)){
-		while (isempty(st)) {
-			push(temp, pop(st));
+		if (success == true) {
+			while (isnoempty(st)) {
+				push(temp, pop(st));
+			}
+			int t2 = pop(temp);
+			push(temp, t1);
+			while (isnoempty(temp)) {
+				push(st, pop(temp));
+			}
+			push(st, t2);
+
 		}
-		int t2 = pop(temp);
-		push(temp, t1);
-		while (isempty(temp)) {
-			push(st, pop(temp));
-		}
-		push(st, t2);
+		else cout << "Operation is failed!\n\n";
 	}
+}
+void print_log() {
+	if (mem == false) {
+		cout << Error_message;
+		cout << "Some memory error\n";      //Серьезность	Код	Описание	Проект	Файл	Строка	Состояние подавления
+		mem_true();                         //Ошибка	C4996	'strcat': This function or variable may be unsafe.Consider using strcat_s instead.To disable deprecation, 
+		                                    //use _CRT_SECURE_NO_WARNINGS.See online help for details.lab4
+	}
+	else cout << "No errors\n";
 }
 void menu() {
 	stack_t st;
@@ -194,18 +226,19 @@ void menu() {
 		case'1': {
 			print_stack(st);
 			clear(st);
-			cout <<"#########\n"
-				<< "#Cleaned#\n"
-				<< "#########\n\n";
+			cout << "#########\n"
+				 << "#Cleaned#\n"
+				 << "#########\n\n";
+		
 			break;
 		}
 		case'2': {
 			int x;
 			cout << "Enter value: ";
 			cin >> x;
-			push(st, x); 
-				if (success = true){
-					cout << "#########\n"
+			push(st, x);
+			if (success == true) {
+				cout << "#########\n"
 					<< "#PUSHED#\n"
 					<< "#########\n\n";
 			}
@@ -231,14 +264,21 @@ void menu() {
 		case'4': {
 			task4(st);
 			print_stack(st);
-			cout << "#########\n"
+			if (success == true)
+				cout << "#########\n"
 				<< "#CHANGED#\n"
 				<< "#########\n\n";
+			else {
+				//cout << "No changes!\n\n";
+				again_true();
+
+			}
 			break;
 		}
 		case'5': {
 			task5(st);
 			print_stack(st);
+			if(isnoempty(st)==true)
 			cout << "#########\n"
 				<< "#DELETED#\n"
 				<< "#########\n\n";
@@ -247,15 +287,19 @@ void menu() {
 		case'6': {
 			task6(st);
 			print_stack(st);
-			cout << "#########\n"
-				<< "#SWAPED #\n"
-				<< "#########\n\n";
+			if (success == true) {
+				cout << "#########\n"
+					<< "#SWAPED #\n"
+					<< "#########\n\n";
+			}
+			else again_true();
 			break;
 		}
 		case'p':print_stack(st); break;
 		case'c':clear_console(); break;
+		case'l':print_log(); break;
 		case'e':f = true; break;
-		default:cout << ERROR_NOT_FOUND; break;
+		default:cout << NOT_FOUND; break;
 		}
 	}
 }
