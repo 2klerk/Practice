@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <cstring>
 #include <cstdlib>
 #include<string>
 using namespace std;
@@ -18,18 +19,20 @@ using namespace std;
 
 
 //используется кривое слово успех
-bool success =true;
+bool success = true;
+char Error_message[30];
 void not_ok() {
 	success = false;
 }
 void again_true() {
 	success = true;
+	Error_message[30];
 }
 
 typedef int* arr_t;
 typedef struct arr {
 	arr_t ptr;
-	int size=0;
+	int size = 0;
 } stack_t;
 
 bool isempty(stack_t& st) {
@@ -38,7 +41,7 @@ bool isempty(stack_t& st) {
 }
 
 void clear(stack_t& st) {
-	if(st.size!=0)free(st.ptr);
+	if (st.size != 0)free(st.ptr);
 	st.ptr = NULL;
 	st.size = 0;
 }
@@ -53,7 +56,7 @@ void st_increase(stack_t& st) {
 	st.size++;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
 	if (t == NULL) {
-		//cout << REALLOC_FIELD;
+		strncat(Error_message, REALLOC_FIELD, '\n');
 		clear(st);
 		//exit(0);          
 	}
@@ -64,18 +67,19 @@ void st_decrease(stack_t& st) {
 	st.size--;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
 	if (t == NULL) {
-		//cout << REALLOC_FIELD;
+		strncat(Error_message, REALLOC_FIELD, '\n');
 		clear(st);
+		not_ok();
 		//exit(0);
 	}
 	else st.ptr = t;
 }
 
 
-void create(stack_t&st) {               //-
+void create(stack_t& st) {               //-
 	st.ptr = (int*)malloc(sizeof(int) * st.size);
 	if (st.ptr == NULL) {
-		//cout << MALLOC_FIELD;
+		strncat(Error_message, MALLOC_FIELD, '\n');
 		not_ok();
 		//exit(0);
 	}
@@ -98,7 +102,7 @@ int peak(stack_t& st) {
 
 int pop(stack_t& st) {
 	int buff;
-	if (st.size == 0) { 
+	if (st.size == 0) {
 		not_ok();
 		return -2;
 	}
@@ -141,22 +145,22 @@ void task_info() {
 }
 //
 string space(string s) {
-		return string(17-s.length(), ' ');
+	return string(17 - s.length(), ' ');
 }
-void print_stack(stack_t&st) {
+void print_stack(stack_t& st) {
 	cout << "+-----------------+\n";
 	for (int i = 0; i < st.size; i++) {
-		cout <<'|' << st.ptr[i] <<space(to_string(st.ptr[i]))<<'|'<< endl;
+		cout << '|' << st.ptr[i] << space(to_string(st.ptr[i])) << '|' << endl;
 	}
 	cout << "+-----------------+\n";
 }
 
 
-void task5(stack_t&st){
+void task5(stack_t& st) {
 	stack_t temp;
 	create(temp);
 	while (isempty(st)) {
-		push(temp,pop(st));
+		push(temp, pop(st));
 	}
 	pop(temp);
 	while (isempty(temp)) {
@@ -168,87 +172,95 @@ void task5(stack_t&st){
 void task6(stack_t& st) {
 	stack_t temp;
 	create(temp);
-	int t1 = pop(st);
-	//if (!isempty(st)){
-	while (isempty(st)) {
-		push(temp, pop(st));
+	if (success == true) {
+		int t1 = pop(st);
+		//if (!isempty(st)){
+		while (isempty(st)) {
+			push(temp, pop(st));
+		}
+		int t2 = pop(temp);
+		push(temp, t1);
+		while (isempty(temp)) {
+			push(st, pop(temp));
+		}
+		push(st, t2);
 	}
-	int t2=pop(temp);
-	push(temp, t1);
-	while (isempty(temp)) {
-		push(st, pop(temp));
-	}
-	push(st, t2);
 }
 void menu() {
 	stack_t st;
 	char choice;
 	create(st);
 	bool f = false;
-	while(f==false){
+	while (f == false) {
 		task_info();
 		cin >> choice;
 		switch (choice) {
 		case'1': {
 			print_stack(st);
 			clear(st);
-			cout<< "#########\n"
-		        << "#Cleaned#\n"
-		        << "#########\n\n";
-			break; 
+			cout <<"#########\n"
+				<< "#Cleaned#\n"
+				<< "#########\n\n";
+			break;
+		}
+		case'2': {
+			int x;
+			cout << "Enter value: ";
+			cin >> x;
+			push(st, x); 
+				if (success = true){
+					cout << "#########\n"
+					<< "#PUSHED#\n"
+					<< "#########\n\n";
 			}
-			case'2': {
-				int x;
-				cout << "Enter value: ";
-				cin >> x;
-				push(st, x);
-				cout << "#########\n"
-		             << "#PUSHED#\n"
-		             << "#########\n\n";
-				break; 
-			}
-			case'3': {
-				if (success == true) {
-					cout << "Peek = " << peak(st)<<endl;
-					cout <<"#########\n"
-						<< "#  PEAK #\n"
-						<< "#########\n\n";
-				}
-				else {
-					cout << ST_EMPTY;
-				}
+			else {
+				cout << Error_message;
 				again_true();
-				break; 
 			}
-			case'4': {
-				task4(st);
-				print_stack(st);
-				cout <<"#########\n"
-					<< "#CHANGED#\n"
+			break;
+		}
+		case'3': {
+			if (success == true) {
+				cout << "Peek = " << peak(st) << endl;
+				cout << "#########\n"
+					<< "#  PEAK #\n"
 					<< "#########\n\n";
-				break; 
 			}
-			case'5': {
-				task5(st);
-				print_stack(st);
-				cout <<"#########\n"
-					<< "#DELETED#\n"
-					<< "#########\n\n";
-				break; 
+			else {
+				cout << ST_EMPTY;
 			}
-			case'6': {
-				task6(st);
-				print_stack(st);
-				cout <<"#########\n"
-					 <<"#SWAPED #\n"
-					<< "#########\n\n";
-				break; 
-			}
-			case'p':print_stack(st); break;
-			case'c':clear_console(); break;
-			case'e':f = true; break;
-			default:cout << ERROR_NOT_FOUND; break;
-	}
+			again_true();
+			break;
+		}
+		case'4': {
+			task4(st);
+			print_stack(st);
+			cout << "#########\n"
+				<< "#CHANGED#\n"
+				<< "#########\n\n";
+			break;
+		}
+		case'5': {
+			task5(st);
+			print_stack(st);
+			cout << "#########\n"
+				<< "#DELETED#\n"
+				<< "#########\n\n";
+			break;
+		}
+		case'6': {
+			task6(st);
+			print_stack(st);
+			cout << "#########\n"
+				<< "#SWAPED #\n"
+				<< "#########\n\n";
+			break;
+		}
+		case'p':print_stack(st); break;
+		case'c':clear_console(); break;
+		case'e':f = true; break;
+		default:cout << ERROR_NOT_FOUND; break;
+		}
 	}
 }
 
