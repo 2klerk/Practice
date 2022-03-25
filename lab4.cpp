@@ -14,7 +14,7 @@
 using namespace std;
 #define NOT_FOUND       "Command not found!\n"
 #define NO_SPACE        "ERROR: No more space!\n"
-#define ST_EMPTY        "Stack is empty\n\n";
+#define ST_EMPTY        "Stack is empty\n\n"
 
 
 //используется кривое слово успех
@@ -95,6 +95,8 @@ void new_reallocation(stack_t& stack, int new_size) {
 	arr_t temp = (arr_t)realloc(stack.ptr, (new_size) * sizeof(arr_t*));
 	if (temp == NULL && new_size != 0) {
 		strcat(Error_message, "ERROR: Realloc field!\n");
+		not_ok();
+		mem_error();
 	}
 	else {
 		stack.ptr = temp;
@@ -149,6 +151,7 @@ void task4(stack_t& st) {
 	stack_t newstack;
 	createcopy(st,newstack);
 	if (success == false) {
+        clear(newstack);
 		return;
 	}
 	if (isnoempty(newstack)== false)cout << "Stack is empty!\n\n";
@@ -159,16 +162,19 @@ void task4(stack_t& st) {
 			int t2 = pop(newstack);
 			if (mem == false && success == false) {
 				not_ok();
+                clear(newstack);
 				return;
 			}
 			push(newstack, t1);
 			if (mem == false && success == false) {
 				not_ok();
+                clear(newstack);
 				return;
 			}
 			push(newstack, t2);
 			if (mem == false && success == false) {
 				not_ok();
+                clear(newstack);
 				return;
 			}
 			clear(st);
@@ -221,14 +227,16 @@ void task5(stack_t& st) {
 	stack_t temp;
 	create(temp);
 	while (isnoempty(newstack)) {
+        if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 		push(temp, pop(newstack));
 	}
 	pop(temp);
 	while (isnoempty(temp)) {
+        if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 		push(newstack, pop(temp));
 	}
 	clear(st);
-	if (mem == false && success == false) { not_ok(); mem_error(); return; }
+	if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 	st = newstack;
 }
 //обработать когда элемент один
@@ -241,21 +249,21 @@ void task6(stack_t& st) {
 		int t1 = pop(newstack);
 		if (mem == true && success == true) {
 			while (isnoempty(newstack)) {
-				if (mem == false && success == false) { not_ok(); mem_error(); return; }
+				if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 				push(temp, pop(newstack));
 			}
-			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 			int t2 = pop(temp);
-			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 			push(temp, t1);
-			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 			while (isnoempty(temp)) {
-				if (mem == false && success == false) { not_ok(); mem_error(); return; }
+				if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 				push(newstack, pop(temp));
 			}
-			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 			push(newstack, t2);
-			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			if (mem == false && success == false) { clear(newstack);not_ok(); mem_error(); return; }
 			st = newstack;
 		}
 	}
