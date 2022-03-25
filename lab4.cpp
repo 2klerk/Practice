@@ -35,7 +35,7 @@ void mem_true() {
 }
 typedef int* arr_t;
 typedef struct arr {
-	arr_t ptr;
+	arr_t ptr=NULL;
 	int size = 0;
 } stack_t;
 
@@ -60,7 +60,7 @@ void st_increase(stack_t& st) {
 	st.size++;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
 	if (t == NULL) {
-		//strcat(Error_message, "ERROR: Realloc field!\n");
+		strcpy(Error_message, "ERROR: Realloc field!\n");
 		mem_error();
 		not_ok();
 		clear(st);
@@ -72,11 +72,11 @@ void st_increase(stack_t& st) {
 void st_decrease(stack_t& st) {
 	st.size--;
 	arr_t t = (int*)realloc(st.ptr, sizeof(int) * st.size);
-	if (t == NULL) {
-		//strcat(Error_message, "ERROR: Realloc field!\n");
-		clear(st);
+	if (st.size!=0 &&t == NULL) {                           //так как при размере 0 t=Null
+		strcpy(Error_message, "ERROR: Realloc field!\n");
 		not_ok();
 		mem_error();
+		clear(st);
 		//exit(0);
 	}
 	else st.ptr = t;
@@ -86,13 +86,36 @@ void st_decrease(stack_t& st) {
 void create(stack_t& st) {               
 	st.ptr = (int*)malloc(sizeof(int) * st.size);
 	if (st.ptr == NULL) {
-		//strcat(Error_message, "ERROR: Malloc field!\n");
+		strcat(Error_message, "ERROR: Malloc field!\n");
 		not_ok();
-
 		//exit(0);
 	}
 }
+void new_reallocation(stack_t& stack, int new_size) {  
+	arr_t temp = (arr_t)realloc(stack.ptr, (new_size) * sizeof(arr_t*));
+	if (temp == NULL && new_size != 0) {
+		strcat(Error_message, "ERROR: Realloc field!\n");
+	}
+	else {
+		stack.ptr = temp;
+		stack.size = new_size;
+		again_true();
+	}
+}
 
+void createcopy(stack_t st, stack_t& newstack) {	
+	new_reallocation(newstack, st.size);
+	if (success == false && mem == false) {
+		strcat(Error_message, "ERROR: Copy not created!\n");
+		not_ok();
+		mem_error();
+	}
+	else {
+		for (int i = 0; i < newstack.size; ++i) {
+			newstack.ptr[i] = st.ptr[i];
+		}
+	}
+}
 void push(stack_t& st, int new_el) {
 	st_increase(st);
 	st.ptr[st.size - 1] = new_el;
@@ -123,17 +146,35 @@ int pop(stack_t& st) {
 
 //неправильная работа при 1 элементе
 void task4(stack_t& st) {
-	if (isnoempty(st)== 0)cout << "Stack is empty!\n\n";
+	stack_t newstack;
+	createcopy(st,newstack);
+	if (success == false) {
+		return;
+	}
+	if (isnoempty(newstack)== false)cout << "Stack is empty!\n\n";
 	else {
-		int t1 = pop(st);
-		if (isnoempty(st) == true) {
-			int t2 = pop(st);
-			push(st, t1);
-			push(st, t2);
-			again_true();
+		int t1 = pop(newstack);
+		if (isnoempty(newstack) == true) {
+
+			int t2 = pop(newstack);
+			if (mem == false && success == false) {
+				not_ok();
+				return;
+			}
+			push(newstack, t1);
+			if (mem == false && success == false) {
+				not_ok();
+				return;
+			}
+			push(newstack, t2);
+			if (mem == false && success == false) {
+				not_ok();
+				return;
+			}
+			clear(st);
+			st = newstack;
 		}
 		else {
-			push(st, t1);  //возвращаем элемент в случае неудачи
 			not_ok();
 		}
 	}	
@@ -144,7 +185,7 @@ void task4(stack_t& st) {
 
 
 void task_info() {
-	cout << "(1)Clear stack   (1)\n"        //
+	cout<< "(1)Clear stack   (1)\n"        //
 		<< "(2)Add to stack  (2)\n"		//!
 		<< "(3)Peek          (3)\n"		//!
 		<< "(4)Change n-1 & n(4)\n"		//!
@@ -158,6 +199,8 @@ void task_info() {
 string space(string s) {
 	return string(17 - s.length(), ' ');
 }
+
+//переделать от size до 0
 void print_stack(stack_t& st) {
 	if (isnoempty(st)) {
 		cout << "+-----------------+\n";
@@ -173,44 +216,56 @@ void print_stack(stack_t& st) {
 
 
 void task5(stack_t& st) {
+	stack_t newstack;
+	createcopy(st,newstack);
 	stack_t temp;
 	create(temp);
-	while (isnoempty(st)) {
-		push(temp, pop(st));
+	while (isnoempty(newstack)) {
+		push(temp, pop(newstack));
 	}
 	pop(temp);
 	while (isnoempty(temp)) {
-		push(st, pop(temp));
+		push(newstack, pop(temp));
 	}
-	again_true();
+	clear(st);
+	if (mem == false && success == false) { not_ok(); mem_error(); return; }
+	st = newstack;
 }
 //обработать когда элемент один
 void task6(stack_t& st) {
+	stack_t newstack;
+	createcopy(st, newstack);
 	stack_t temp;
 	create(temp);
 	if (success == true) {
-		int t1 = pop(st);
-		if (success == true) {
-			while (isnoempty(st)) {
-				push(temp, pop(st));
+		int t1 = pop(newstack);
+		if (mem == true && success == true) {
+			while (isnoempty(newstack)) {
+				if (mem == false && success == false) { not_ok(); mem_error(); return; }
+				push(temp, pop(newstack));
 			}
+			if (mem == false && success == false) { not_ok(); mem_error(); return; }
 			int t2 = pop(temp);
+			if (mem == false && success == false) { not_ok(); mem_error(); return; }
 			push(temp, t1);
+			if (mem == false && success == false) { not_ok(); mem_error(); return; }
 			while (isnoempty(temp)) {
-				push(st, pop(temp));
+				if (mem == false && success == false) { not_ok(); mem_error(); return; }
+				push(newstack, pop(temp));
 			}
-			push(st, t2);
-
+			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			push(newstack, t2);
+			if (mem == false && success == false) { not_ok(); mem_error(); return; }
+			st = newstack;
 		}
-		else cout << "Operation is failed!\n\n";
 	}
 }
 void print_log() {
 	if (mem == false) {
 		cout << Error_message;
-		cout << "Some memory error\n";      //Серьезность	Код	Описание	Проект	Файл	Строка	Состояние подавления
-		mem_true();                         //Ошибка	C4996	'strcat': This function or variable may be unsafe.Consider using strcat_s instead.To disable deprecation, 
-		                                    //use _CRT_SECURE_NO_WARNINGS.See online help for details.lab4
+		cout << "Some memory error\n";    
+		mem_true();                         
+
 	}
 	else cout << "No errors\n";
 }
@@ -249,6 +304,7 @@ void menu() {
 			break;
 		}
 		case'3': {
+			peak(st);
 			if (success == true) {
 				cout << "Peek = " << peak(st) << endl;
 				cout << "#########\n"
@@ -263,26 +319,34 @@ void menu() {
 		}
 		case'4': {
 			task4(st);
-			print_stack(st);
-			if (success == true)
+			
+			if (isnoempty(st)&&success == true) {
+				print_stack(st);
 				cout << "#########\n"
-				<< "#CHANGED#\n"
-				<< "#########\n\n";
+					<< "#CHANGED#\n"
+					<< "#########\n\n";
+			}
 			else {
-				//cout << "No changes!\n\n";
+				cout << "No changes!\n\n";
 				again_true();
-
 			}
 			break;
 		}
 		case'5': {
 			task5(st);
-			print_stack(st);
-			if(isnoempty(st)==true)
-			cout << "#########\n"
-				<< "#DELETED#\n"
-				<< "#########\n\n";
-			break;
+			if (mem == true && success == true) {
+				print_stack(st);
+				if (isnoempty(st) == true)
+					cout << "#########\n"
+					<< "#DELETED#\n"
+					<< "#########\n\n";
+				break;
+			}
+			else {
+				again_true();
+				mem_true();
+			}
+
 		}
 		case'6': {
 			task6(st);
