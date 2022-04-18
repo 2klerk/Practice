@@ -9,36 +9,35 @@
 using namespace std;
 
 
-void task1(List*&list,int data){
-  List*t,*prev;
-  bool f=false;
-  t=list;
-  prev=list;
-  while(t->head!=NULL ){
-    if(f==false){
-      t=t->head;
-      f=true;
+void task2(List*&list,int data){
+
+    List*t = list,*prev;
+    if(t->value == data) {      // Deleting the head of the list
+      t = t->head;
+    }else {
+      while (t != NULL && t->head != NULL) {
+        if (t->head->value == data) {
+            t->head=t->head;
+            t->head=t->head;
+        }
+      else t = t->head;
     }
-    else{
-      prev=prev->head;
-      t=t->head;
-    }
-    if(t->value==data){
-      prev=prev->head;
-      prev=deletelem(t,list);
-    }
-    t=prev->head;
   }
 }
-
-void task2(List*&list){
-  
+void task6(List*&list){
+  cout<<"Before: ";
+  print_list(list);
+  cout<<"After: ";
+  reverse(list,list);
+  cout<<endl;
 }
 void info(){
   cout<<"(1)AddLink    (1)\n"
       <<"(2)DeleteValue(2)\n"
       <<"(3)FindMax    (3)\n"
       <<"(4)FindMin    (4)\n"
+      <<"(5)SwapMinMax (5)\n"
+      <<"(6)Reverse    (6)\n"
       <<"(p)Print      (p)\n";
 }
 void menu(){
@@ -59,7 +58,7 @@ void menu(){
       case '2':{
         int value;
         cin>>value;
-        task1(list,value);
+        task2(list,value);
         break;
       }
       case '3':{
@@ -70,6 +69,10 @@ void menu(){
         cout<<"Min: "<<search_min(list)<<endl;
         break;
       }
+      case '5':{
+        SwapMinMax(list);
+      }
+      case '6':task6(list);break;
       case 'p':print_list(list);break;
       case 'e':f=true;break;
     }
@@ -80,8 +83,3 @@ int main(){
     return 0;
 }
 
-//для ускорения работы можно убрать проверку на нулевой узел
-//issue
-//функция 2 при удаление последнего и двух подряд
-
-//для решения 4 можно воспользоваться алгоритмом из task 1 при этом сделать функцию по замене указателей

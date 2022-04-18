@@ -10,4 +10,6 @@ void print_list(List*list);
 List*deletelem(List*list,List*root);
 int search_max(List*list);
 int search_min(List*list);
+void SwapMinMax(List*& list);
+void reverse(List*root,List*t);
 #endif
